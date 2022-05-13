@@ -1,78 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
-// FUNCTION DECLARATIONS
-int factorial(int value);
-void cofactorExpand(int size, int **matrix);
-int twoByTwo(int **twoByTwoMatrix);
-int twoByTwo(int **twoByTwoMatrix);
-int *createDetStorage(int matrixSize);
-int **createMatrix(int matrixSize);
-void storeDet(int *detStorage, int position, int determinant);
-int **makeRemainderCopy(int matrixSize, int **originalMatrix, int rowIgnore, int colIgnore);
-
-
-
-int factorial(int value){
-    unsigned long long fact = 1;
-    for (int i = 1; i <= value; i++) {
-        fact *= i;
-    }
-}
-
-int **makeRemainderCopy(int matrixSize, int **originalMatrix, int rowIgnore, int colIgnore){
-
-    // DYNAMICALLY ALLOCATE 2D ARRAY
-    int** copiedMatrix = (int**)malloc((matrixSize - 1)* sizeof(int*));    
-    for (int i = 0; i < matrixSize - 1; i++){
-        copiedMatrix[i] = (int*)malloc((matrixSize - 1) * sizeof(int));
-    }
-
-    // COPY ORIGINAL MATRIX ELEMENTS
-    int copiedMatrixRow = 0, copiedMatrixCol = 0;
-    for (int row = 1; row < matrixSize; row++){
-        for (int col = 0; col < matrixSize; col++){
-            if (!(col == colIgnore)){
-                copiedMatrix[copiedMatrixRow][copiedMatrixCol] == originalMatrix[row][col];
-                copiedMatrixRow++;
-                copiedMatrixCol++;
-            }
-        }
-    }
-
-    return copiedMatrix;
-}
-
-void cofactorExpand(int size, int **matrix){
-
-    // BASE CASE
-    if (size == 2){
-
-    }
-
-    // RECURSIVE CASE
-    else{
-        int remainingRows = sizeof(matrix) / sizeof(matrix[0]);     // number of rows of the remaining matrix
-        for(int i = 0; i < remainingRows; i++){         // to iterate through the remaining size of array
-            
-        }
-    }
-}
-
-
-void storeDet(int *detStorage, int position, int determinant){
-    *(detStorage + position) = determinant;
-}
-
-int twoByTwo(int **twoByTwoMatrix){
-    int determinant = twoByTwoMatrix[0][0] * twoByTwoMatrix[1][1] - twoByTwoMatrix[0][1] * twoByTwoMatrix[1][0];
-    return determinant;
-}
-
-int *createDetStorage(int matrixSize){
-    int* detStorage = (int*)malloc(factorial(matrixSize) * sizeof(int));
-    return detStorage;
-}
 
 int **createMatrix(int matrixSize){  
 
@@ -93,21 +22,76 @@ int **createMatrix(int matrixSize){
 }
 
 
+int laplaceExpand(int matrixSize, int **matrix, int *guard){
+   
+    // BASE CASES
+    if (matrixSize == 1){
+        return matrix[0][0];
+    }
+
+    if (matrixSize == 2){
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+    }
+
+    // RECURSIVE CASES
+    int originalCol, row, col, totalDet = 0, sign = 1; 
+
+    // Allocate memory for sub-matrix
+    int** subMatrix = (int**)malloc((matrixSize - 1) * sizeof(int*));    
+    for (int i = 0; i < matrixSize - 1; i++){
+        subMatrix[i] = (int*)malloc((matrixSize - 1) * sizeof(int));
+    }
+    
+    // Guard condition
+    if (subMatrix == NULL){
+        *guard = 0;
+        return 0;
+    }
+
+    // Copy orginal matrix into sub-matrix
+    for (originalCol = 0; originalCol < matrixSize; originalCol++){
+        for (row = 1; row < matrixSize; row++){
+            for (col = 0; col < originalCol; col++){
+                subMatrix[row - 1][col] = matrix[row][col];
+            }
+            for (col = originalCol + 1; col < matrixSize; col++){
+                subMatrix[row - 1][col - 1] = matrix[row][col];
+            }
+        }
+
+        int recurDet = laplaceExpand(matrixSize - 1, subMatrix, guard);
+        if (guard == NULL){
+            free(subMatrix);
+            return 0;
+        }
+
+        // Multiply by coefficient
+        totalDet += sign * matrix[0][originalCol] * recurDet;
+        sign *= -1;
+    }
+    free (subMatrix);
+    return totalDet;
+}
+
 
 int main(){
-    
-    // PROMPT SQUARE MATRIX SIZE
+
+    // PROMPT MATRIX SIZE
     int matrixSize;
     printf("Enter the matrix size: ");
     scanf("%d", &matrixSize);
     printf("\n");
 
+    // CREATE MATRIX 2D DYNAMIC ARRAY
+    int **matrix = createMatrix(matrixSize);
 
+    // APPLY LAPLACE EXPANSION
+    int guard = 1;
+    int determinant = laplaceExpand(matrixSize, matrix, &guard);
 
-    int **createMatrixPtr = createMatrix(matrixSize);
-    printf("%d\n", twoByTwo(createMatrixPtr));
-
-    // int testMatrix[2][2] = {{1,2},{3,4}};
-    // printf("%d\n", twoByTwo(testMatrix));
+    if(guard) {
+        printf("Determinant = %d\n", determinant);
+    }
+    free(matrix);
     return 0;
 }
