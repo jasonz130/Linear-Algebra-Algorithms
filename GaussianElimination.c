@@ -18,6 +18,10 @@ int **multiplyRow(int **matrix, int rowSize, int colSize, int rowMultiply, int f
 
 }
 
+int **swapRows(int **matrix, int rowSize, int colSize, int row1, int row2){
+
+    
+}
 
 int **createMatrix(int rowSize, int colSize){
     
