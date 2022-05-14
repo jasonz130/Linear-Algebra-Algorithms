@@ -1,10 +1,13 @@
+/* This program takes matrix size and matrix entry inputs from the user
+   It calculates the determinant and prints the value */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
 
 int **createMatrix(int matrixSize){  
-
+    
     // DYNAMICALLY ALLOCATE 2D ARRAY
     int** matrix = (int**)malloc(matrixSize * sizeof(int*));    
     for (int i = 0; i < matrixSize; i++){
@@ -28,12 +31,11 @@ int laplaceExpand(int matrixSize, int **matrix, int *guard){
     if (matrixSize == 1){
         return matrix[0][0];
     }
-
     if (matrixSize == 2){
         return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
     }
 
-    // RECURSIVE CASES
+    // RECURSIVE CASE
     int originalCol, row, col, totalDet = 0, sign = 1; 
 
     // Allocate memory for sub-matrix
