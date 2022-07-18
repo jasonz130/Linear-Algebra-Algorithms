@@ -70,27 +70,26 @@ void **fillVectorMatrix(int dimension, int numberOfVectors, double **vectorMatri
     }
 }
 
-void gramSchmidt(double **vectorMatrix, double **gramSchmidtVecMat, int dimension, int numberofVectors){
+void gramSchmidt(double **vectorMatrix, double **gramSchmidtVecMat, int dimension, int numberOfVectors){
     
-    for (int k = 1; k <= numberofVectors; k++){
+    // ALLOCATE VECTOR VARIABLE FOR SCALAR MULTIPLICATION STEP
+    double *allocateVecVarScalarMult = allocateVector(dimension);
+
+    // ALLOCATE VECTOR ADDITION STEP
+    double *openVar = allocateVector(dimension);
+
+    for (int k = 1; k <= numberOfVectors; k++){
         for (int col = 0; col < dimension; col++){
             gramSchmidtVecMat[k-1][col] = vectorMatrix[k-1][col];
         }
 
         if (k > 1){
-            // ALLOCATE VECTOR VARIABLE FOR SCALAR MULTIPLICATION STEP
-            double *allocateVecVarScalarMult = allocateVector(dimension);
-
-
-            // ALLOCATE VECTOR ADDITION STEP
-            double *openVar = allocateVector(dimension);
             // INIT OPENVAR ENTRIES TO 0
             for (int iteration = 0; iteration < dimension; iteration++){
                 openVar[iteration] = 0;
             }
 
             for (int i = 1; i < k; i++){
-                double iterativeVariable;
 
                 double dotProduct = dotProd(vectorMatrix, gramSchmidtVecMat, dimension, k-1, i-1);
                 double magnitudeSquared = abs(vectorMagnitude(gramSchmidtVecMat, dimension, i-1) * vectorMagnitude(gramSchmidtVecMat, dimension, i-1));
@@ -119,6 +118,17 @@ int main(){
     double **vectorMatrix = createVectorMatrix(dimension, numberOfVectors);
     fillVectorMatrix(dimension, numberOfVectors, vectorMatrix); 
     
+    // double **testMatrix = createVectorMatrix(dimension, numberOfVectors);
+    // fillVectorMatrix(dimension, numberOfVectors, testMatrix);
+
+
+    double *testVector = allocateVector(dimension);
+    // for (int i = 0; i < dimension; i++){
+    //     testVector[i] = 1;
+    // }
+
+
+    // PRINT VECTORMATRIX
     for (int i = 0; i < numberOfVectors; i++){
         printf("\n");
         for (int j = 0; j < dimension; j++){
@@ -126,32 +136,49 @@ int main(){
         }
     }
 
+    // // PRINT TESTMATRIX
+    // for (int i = 0; i < numberOfVectors; i++){
+    //     printf("\n");
+    //     for (int j = 0; j < dimension; j++){
+    //         printf("%lf ", testMatrix[i][j]);
+    //     }
+    // }
+
+
+
 // // DOT PRODUCT
 //     printf("\n");
-//     printf("Dot product = %lf", dotProd(vectorMatrix, dimension, 0, 1));
+//     printf("Dot product = %lf", dotProd(vectorMatrix, testMatrix, dimension, 1, 1));
     
-
 // // ADDITION/SUBTRACTION VECTOR
 //     printf("\n");
 //     printf("Subtracted vector = ");
 //     double *vector = allocateVector(dimension);
-//     vectorSubtraction(vectorMatrix, dimension, 1, 0, vector);
-//     for (int row = 0; row < dimension; row++){
-//         printf("%lf ", vector[row]);
+//     vectorSubtraction(vectorMatrix, testVector, dimension, 0, testMatrix, 0);
+    
+//     // PRINT TESTMATRIX
+//     for (int i = 0; i < numberOfVectors; i++){
+//         printf("\n");
+//         for (int j = 0; j < dimension; j++){
+//             printf("%lf ", testMatrix[i][j]);
+//         }
 //     }
+
+
 
 // // SCALAR MULTIPLCATION
 //     printf("\n");
 //     printf("Scalar multiplication = ");
-//     double *vector2 = allocateVector(dimension);
-//     vectorScalarMultiplication(vectorMatrix, dimension, 0, vector2, 5);
+//     vectorScalarMultiplication(vectorMatrix, dimension, 0, testVector, 5);
 //     for (int row = 0; row < dimension; row++){
-//         printf("%lf ", vector2[row]);
+//         printf("%lf ", testVector[row]);
 //     }
+
+
 
 // // VECTOR MAGNITUDE
 //     printf("\n");
-//     printf("Vector magnitude = %lf", vectorMagnitude(vectorMatrix, dimension, 0));
+//     printf("Vector magnitude = %lf", vectorMagnitude(vectorMatrix, dimension, 0) * vectorMagnitude(vectorMatrix, dimension, 0));
 
 // // UNIT VECTOR
 //     printf("\n");
@@ -161,15 +188,19 @@ int main(){
 //     for (int row = 0; row < dimension; row++){
 //         printf("%lf ", vector3[row]);
 //     }
-    // COPY THE VECTOR MATRIX ALLOCATED MEMORY SIZE
-    double **gramSchmidtVecMat = createVectorMatrix(dimension, numberOfVectors);
 
-    gramSchmidt(vectorMatrix, gramSchmidtVecMat, dimension, numberOfVectors);
-    for (int row = 0; row < numberOfVectors; row++){
-        printf("\n");
-        for (int col = 0; col < dimension; col++){
-            printf("%lf ", gramSchmidtVecMat[row][col]);
-        }
-    }
+
+
+
+    // COPY THE VECTOR MATRIX ALLOCATED MEMORY SIZE
+    // double **gramSchmidtVecMat = createVectorMatrix(dimension, numberOfVectors);
+
+    // gramSchmidt(vectorMatrix, gramSchmidtVecMat, dimension, numberOfVectors);
+    // for (int row = 0; row < numberOfVectors; row++){
+    //     printf("\n");
+    //     for (int col = 0; col < dimension; col++){
+    //         printf("%lf ", gramSchmidtVecMat[row][col]);
+    //     }
+    // }
     return 0;
 }
