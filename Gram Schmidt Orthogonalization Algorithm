@@ -49,7 +49,7 @@ void unitVector(double **vectorMatrix, int dimension, int vectorToUnitize, doubl
 }
 
 double **createVectorMatrix(int dimension, int numberOfVectors){
-    //Dynamically allocate memory
+    // DYNAMICALLY ALLOCATE MEMORY
     double** vectorMatrix = (double**)malloc(numberOfVectors * sizeof(double*));
     for (int i = 0; i < numberOfVectors; i++){
         vectorMatrix[i] = (double*)malloc(dimension * sizeof(double));
@@ -70,7 +70,7 @@ void **fillVectorMatrix(int dimension, int numberOfVectors, double **vectorMatri
 }
 
 void gramSchmidt(double **vectorMatrix, double **gramSchmidtVecMat, double **gramSchmidtUnitVecMat, int dimension, int numberOfVectors){
-    
+
     // ALLOCATE VECTOR VARIABLE FOR SCALAR MULTIPLICATION STEP
     double *allocateVecVarScalarMult = allocateVector(dimension);
 
@@ -82,11 +82,13 @@ void gramSchmidt(double **vectorMatrix, double **gramSchmidtVecMat, double **gra
     double magnitudeSquared;
     double division;
     
+    // ITERATION FOR EACH VECTOR
     for (int k = 1; k <= numberOfVectors; k++){
         for (int col = 0; col < dimension; col++){
             gramSchmidtVecMat[k-1][col] = vectorMatrix[k-1][col];
         }
 
+        // IF THERE ARE MORE THAN 1 VECTOR
         if (k > 1){
             
             // INIT OPENVAR ENTRIES TO 0
@@ -94,6 +96,7 @@ void gramSchmidt(double **vectorMatrix, double **gramSchmidtVecMat, double **gra
                 openVar[iteration] = 0;
             }
 
+            // ITERATION OF SUM OF INNER PRODUCTS 
             for (int i = 1; i < k; i++){
                 dotProduct = dotProd(vectorMatrix, gramSchmidtVecMat, dimension, k-1, i-1);
                 magnitudeSquared = fabs(vectorMagnitude(gramSchmidtVecMat, dimension, i-1) * vectorMagnitude(gramSchmidtVecMat, dimension, i-1));
@@ -105,56 +108,70 @@ void gramSchmidt(double **vectorMatrix, double **gramSchmidtVecMat, double **gra
         }
     }
 
-    int counter;
-    for (int row = 0; row < numberOfVectors; row++){
-        counter = 0;
-        for (int col = 0; col < dimension; col++){
-            if (fabs(gramSchmidtVecMat[row][col]) < 0.000001){      // IF 0
-                counter++;    
-                gramSchmidtUnitVecMat[row][col] = 0;
+    int numberOfZeros;
 
+    // FOR EACH ROW, CHECK IF ALL ENTRIES ARE 0
+    for (int row = 0; row < numberOfVectors; row++){
+        numberOfZeros = 0;
+        for (int col = 0; col < dimension; col++){
+
+            // IF ENTRY IS 0
+                // THEN INCREMENT numberOfZeros
+            if (fabs(gramSchmidtVecMat[row][col]) < 0.000001){
+                numberOfZeros++;    
+                gramSchmidtUnitVecMat[row][col] = 0;
             }
         }
-        if (counter != dimension){      // IF NOT A ROW OF 0s
+
+        // IF THE NUMBER OF ZEROS IN THE ROW DNE THE TOTAL NUMBER OF ENTRIES IN THE ROW
+            // THEN UNITIZE THE ROW
+        if (numberOfZeros != dimension){
             unitVector(gramSchmidtVecMat, dimension, row, gramSchmidtUnitVecMat);
         }
     }
 }
 
+void printMatrix(double **vectorMatrix, int dimension, int numberOfVectors){
+    for (int row = 0; row < numberOfVectors; row++){
+        printf("\nVector %d: ", row + 1);
+        for (int col = 0; col < dimension; col++){
+            printf("%lf ", vectorMatrix[row][col]);
+        }
+    }
+}
+
 int main(){
+    
+    // PROMPT VECTOR DIMENSION (SIZE) 
     int dimension;
     printf("Enter the vector space dimension: ");
     scanf("%d", &dimension);
     printf("\n");
 
+    // PROMPT NUMBER OF VECTORS
     int numberOfVectors;
     printf("Enter the number of vectors: ");
     scanf("%d", &numberOfVectors);
     printf("\n");
 
+    // INIT MATRICES WHERE EACH ROW IS A VECTOR AND COLUMN AS VECTOR ENTRY
+        // NUMBER OF ROWS = NUMBER OF VECTORS
+        // NUMBER OF COLUMNS = VECTOR DIMENSION
     double **vectorMatrix = createVectorMatrix(dimension, numberOfVectors);
-    fillVectorMatrix(dimension, numberOfVectors, vectorMatrix); 
-    
     double **gramSchmidtVecMat = createVectorMatrix(dimension, numberOfVectors);
     double **gramSchmidtUnitVecMat = createVectorMatrix(dimension, numberOfVectors);
+    
+    // PROMPT ORIGINAL VECTOR ENTRIES
+    fillVectorMatrix(dimension, numberOfVectors, vectorMatrix);
 
+    // CONDUCT GRAM-SCHMIDT ORTHOGONALIZATION PROCESS
     gramSchmidt(vectorMatrix, gramSchmidtVecMat, gramSchmidtUnitVecMat, dimension, numberOfVectors);
     
+    // PRINT THE PROCESSED VECTORS
     printf("Set of Orthogonalized Vectors:");
-    for (int row = 0; row < numberOfVectors; row++){
-        printf("\nVector %d: ", row + 1);
-        for (int col = 0; col < dimension; col++){
-            printf("%lf ", gramSchmidtVecMat[row][col]);
-        }
-    }
-
+    printMatrix(gramSchmidtVecMat, dimension, numberOfVectors);
     printf("\n\nSet of Orthonormal Vectors:");
-    for (int row = 0; row < numberOfVectors; row++){
-        printf("\nVector %d: ", row + 1);
-        for (int col = 0; col < dimension; col++){
-            printf("%lf ", gramSchmidtUnitVecMat[row][col]);
-        }
-    }
+    printMatrix(gramSchmidtUnitVecMat, dimension, numberOfVectors);
 
     return 0;
 }
