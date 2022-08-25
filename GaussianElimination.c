@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 
 void printMatrix(double **matrix, int row, int col){
     for (int i = 0; i < row; i++){
@@ -73,6 +74,16 @@ void columnsToZero(double **matrix, int row, int col, int entry_row, int entry_c
     }
 }
 
+void makePositiveZeros(double **matrix, int row, int col){
+    for (int i = 0; i < row; i++){
+        for (int j = 0; j < col; j++){
+            if (matrix[i][j] < 0.001 && matrix[i][j] > -0.001){
+                matrix[i][j] = fabs(matrix[i][j]);
+            }
+        }
+    }
+}
+
 void gaussianEliminateActual(double **matrix, int row, int col){
     swapRowOfZeros(matrix, row, col);
     int rows_counter = 0;
@@ -129,6 +140,7 @@ int main(){
     printMatrix(matrix, row , col);
 
     gaussianEliminateActual(matrix, row, col);
+    makePositiveZeros(matrix, row, col);
     printMatrix(matrix, row, col);
     return 0;
 }
